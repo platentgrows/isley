@@ -48,12 +48,12 @@ func TestGetStrains_OrderedAlphabetically(t *testing.T) {
 
 	db := testutil.NewTestDB(t)
 	testutil.MustExec(t, db, `INSERT INTO breeder (id, name) VALUES (1, 'B')`)
-	testutil.MustExec(t, db, `INSERT INTO strain (name, breeder_id, sativa, indica, autoflower, description, seed_count)
-	                 VALUES ('Zeta', 1, 50, 50, 0, '', 0)`)
-	testutil.MustExec(t, db, `INSERT INTO strain (name, breeder_id, sativa, indica, autoflower, description, seed_count)
-	                 VALUES ('Alpha', 1, 50, 50, 0, '', 0)`)
-	testutil.MustExec(t, db, `INSERT INTO strain (name, breeder_id, sativa, indica, autoflower, description, seed_count)
-	                 VALUES ('Mango', 1, 50, 50, 0, '', 0)`)
+	testutil.MustExec(t, db, `INSERT INTO strain (name, breeder_id, sativa, indica, autoflower, feminized, description, seed_count)
+	                 VALUES ('Zeta', 1, 50, 50, 0, 1, '', 0)`)
+	testutil.MustExec(t, db, `INSERT INTO strain (name, breeder_id, sativa, indica, autoflower, feminized, description, seed_count)
+	                 VALUES ('Alpha', 1, 50, 50, 0, 1, '', 0)`)
+	testutil.MustExec(t, db, `INSERT INTO strain (name, breeder_id, sativa, indica, autoflower, feminized, description, seed_count)
+	                 VALUES ('Mango', 1, 50, 50, 0, 1, '', 0)`)
 
 	got := handlers.GetStrains(db)
 	require.Len(t, got, 3)
@@ -71,8 +71,8 @@ func TestGetStrain_PopulatesFields(t *testing.T) {
 
 	db := testutil.NewTestDB(t)
 	testutil.MustExec(t, db, `INSERT INTO breeder (id, name) VALUES (7, 'Acme Genetics')`)
-	testutil.MustExec(t, db, `INSERT INTO strain (id, name, breeder_id, sativa, indica, autoflower, description, seed_count, cycle_time, url)
-	                 VALUES (42, 'OG Test', 7, 30, 70, 1, 'a desc', 12, 56, 'https://x')`)
+	testutil.MustExec(t, db, `INSERT INTO strain (id, name, breeder_id, sativa, indica, autoflower, feminized, description, seed_count, cycle_time, url)
+	                 VALUES (42, 'OG Test', 7, 30, 70, 1, 1, 'a desc', 12, 56, 'https://x')`)
 
 	got := handlers.GetStrain(db, "42")
 	assert.Equal(t, 42, got.ID)
@@ -85,6 +85,7 @@ func TestGetStrain_PopulatesFields(t *testing.T) {
 	assert.Equal(t, 56, got.CycleTime)
 	assert.Equal(t, "https://x", got.Url)
 	assert.True(t, got.Autoflower, "autoflower=1 should map to true")
+	assert.True(t, got.Feminized, "feminized=1 should map to true")
 }
 
 func TestGetStrain_MissingIDReturnsZeroValue(t *testing.T) {
@@ -110,10 +111,10 @@ func TestGetStrains_FiltersBySeedCountManual(t *testing.T) {
 
 	db := testutil.NewTestDB(t)
 	testutil.MustExec(t, db, `INSERT INTO breeder (id, name) VALUES (1, 'B')`)
-	testutil.MustExec(t, db, `INSERT INTO strain (name, breeder_id, sativa, indica, autoflower, description, seed_count)
-	                 VALUES ('InStockOne', 1, 50, 50, 0, '', 5)`)
-	testutil.MustExec(t, db, `INSERT INTO strain (name, breeder_id, sativa, indica, autoflower, description, seed_count)
-	                 VALUES ('OutOfStock', 1, 50, 50, 0, '', 0)`)
+	testutil.MustExec(t, db, `INSERT INTO strain (name, breeder_id, sativa, indica, autoflower, feminized, description, seed_count)
+	                 VALUES ('InStockOne', 1, 50, 50, 0, 1, '', 5)`)
+	testutil.MustExec(t, db, `INSERT INTO strain (name, breeder_id, sativa, indica, autoflower, feminized, description, seed_count)
+	                 VALUES ('OutOfStock', 1, 50, 50, 0, 1, '', 0)`)
 
 	// Spot-check the underlying assumption about column semantics: a
 	// fresh strain with seed_count > 0 should be considered in stock,

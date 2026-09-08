@@ -40,7 +40,7 @@ var conflictKeys = map[string]string{
 }
 
 var boolToIntFields = map[string][]string{
-	"strain": {"autoflower"},
+	"strain": {"autoflower", "feminized"},
 }
 
 var orderedTables = []string{
