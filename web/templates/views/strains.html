@@ -262,16 +262,20 @@ document.addEventListener("DOMContentLoaded", () => {
         renderTable(data);
     }
 
+    function renderBadges(s) {
+        const typeBadge = s.autoflower
+            ? `<span class="strain-badge-auto"><i class="fa-solid fa-bolt me-1"></i>Auto</span>`
+            : `<span class="strain-badge-photo"><i class="fa-solid fa-sun me-1"></i>Photo</span>`;
+        const femBadge = s.feminized
+            ? `<span class="strain-badge-feminized"><i class="fa-solid fa-venus me-1"></i>Fem</span>`
+            : `<span class="strain-badge-regular"><i class="fa-solid fa-mars me-1"></i>Reg</span>`;
+        return { typeBadge, femBadge };
+    }
+
     // ----- Render card grid -----
     function renderCards(data) {
         cardsContainer.innerHTML = data.map(s => {
-            const typeBadge = s.autoflower
-                ? `<span class="strain-badge-auto"><i class="fa-solid fa-bolt me-1"></i>Auto</span>`
-                : `<span class="strain-badge-photo"><i class="fa-solid fa-sun me-1"></i>Photo</span>`;
-
-            const femBadge = s.feminized
-                ? `<span class="strain-badge-feminized"><i class="fa-solid fa-venus me-1"></i>Fem</span>`
-                : `<span class="strain-badge-regular"><i class="fa-solid fa-mars me-1"></i>Reg</span>`;
+            const { typeBadge, femBadge } = renderBadges(s);
 
             const dominance = s.indica > s.sativa ? "Indica" : s.sativa > s.indica ? "Sativa" : "Hybrid";
 
@@ -326,13 +330,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ----- Render table -----
     function renderTable(data) {
         tableBody.innerHTML = data.map(s => {
-            const typeBadge = s.autoflower
-                ? `<span class="strain-badge-auto" style="font-size:0.7rem;padding:0.15em 0.5em"><i class="fa-solid fa-bolt me-1"></i>Auto</span>`
-                : `<span class="strain-badge-photo" style="font-size:0.7rem;padding:0.15em 0.5em"><i class="fa-solid fa-sun me-1"></i>Photo</span>`;
-
-            const femBadge = s.feminized
-                ? `<span class="strain-badge-feminized" style="font-size:0.7rem;padding:0.15em 0.5em"><i class="fa-solid fa-venus me-1"></i>Fem</span>`
-                : `<span class="strain-badge-regular" style="font-size:0.7rem;padding:0.15em 0.5em"><i class="fa-solid fa-mars me-1"></i>Reg</span>`;
+            const { typeBadge, femBadge } = renderBadges(s);
 
             const seedBadge = s.seed_count > 0
                 ? `<span class="badge bg-success">${s.seed_count}</span>`

@@ -834,37 +834,24 @@ header .nav-link.active::after {
 }
 
 /* Strain type badges */
-.strain-badge-auto {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
+.strain-badge-auto, .strain-badge-photo, .strain-badge-feminized, .strain-badge-regular {
     color: #fff;
     font-size: 0.85rem;
     padding: 0.4em 1em;
     border-radius: 999px;
     font-weight: 600;
+}
+.strain-badge-auto {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
 }
 .strain-badge-photo {
     background: linear-gradient(135deg, #10b981, #059669);
-    color: #fff;
-    font-size: 0.85rem;
-    padding: 0.4em 1em;
-    border-radius: 999px;
-    font-weight: 600;
 }
 .strain-badge-feminized {
     background: linear-gradient(135deg, #B9A010, #968005);
-    color: #fff;
-    font-size: 0.85rem;
-    padding: 0.4em 1em;
-    border-radius: 999px;
-    font-weight: 600;
 }
 .strain-badge-regular {
     background: linear-gradient(135deg, #B92710, #962005);
-    color: #fff;
-    font-size: 0.85rem;
-    padding: 0.4em 1em;
-    border-radius: 999px;
-    font-weight: 600;
 }
 
 /* Indica/Sativa gradient ratio bar */

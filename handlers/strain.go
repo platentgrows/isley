@@ -303,18 +303,8 @@ func AddStrainHandler(c *gin.Context) {
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id
 	`
 	//convert autoflower to int
-	var autoflowerInt int
-	if req.Autoflower {
-		autoflowerInt = 1
-	} else {
-		autoflowerInt = 0
-	}
-	var feminizedInt int
-	if req.Feminized {
-		feminizedInt = 1
-	} else {
-		feminizedInt = 0
-	}
+	autoflowerInt := boolToInt(req.Autoflower)
+	feminizedInt := boolToInt(req.Feminized)
 	var id int
 	err := db.QueryRow(stmt, req.Name, breederID, req.Indica, req.Sativa, autoflowerInt, feminizedInt, req.SeedCount, req.Description, req.CycleTime, req.Url, req.ShortDescription).Scan(&id)
 	if err != nil {
@@ -446,20 +436,10 @@ func UpdateStrainHandler(c *gin.Context) {
     WHERE id = $12
     `
 	//Convert autoflower to int
-	var autoflowerInt int
-	if req.Autoflower {
-		autoflowerInt = 1
-	} else {
-		autoflowerInt = 0
-	}
+	autoflowerInt := boolToInt(req.Autoflower)
 
 	//Convert feminized to int
-	var feminizedInt int
-	if req.Feminized {
-		feminizedInt = 1
-	} else {
-		feminizedInt = 0
-	}
+	feminizedInt := boolToInt(req.Feminized)
 
 	_, err = db.Exec(updateStmt, req.Name, breederID, req.Indica, req.Sativa,
 		autoflowerInt, feminizedInt, req.Description, req.SeedCount, req.CycleTime, req.Url, req.ShortDescription, id)
