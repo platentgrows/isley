@@ -536,6 +536,8 @@ sort_zone_asc: "Zone A–Z"
 sort_source_asc: "Source A–Z"
 sort_type_asc: "Type A–Z"
 sort_recently_updated: "Recently Updated"
+sort_feminized_first: "Feminized First"
+sort_regular_first: "Regular First"
 photoperiod: "Photoperiod"
 
 # API response messages (used by handlers via T() helper)
