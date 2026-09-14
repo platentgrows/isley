@@ -847,12 +847,6 @@ header .nav-link.active::after {
 .strain-badge-photo {
     background: linear-gradient(135deg, #10b981, #059669);
 }
-/*.strain-badge-feminized {
-    background: linear-gradient(135deg, #B9A010, #968005);
-}
-.strain-badge-regular {
-    background: linear-gradient(135deg, #B92710, #962005);
-}*/
 .strain-badge-feminized {
     background: linear-gradient(135deg, #ec4899, #db2777);
 }
