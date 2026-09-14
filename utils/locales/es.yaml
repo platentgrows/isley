@@ -514,6 +514,8 @@ sort_zone_asc: "Zona A–Z"
 sort_source_asc: "Fuente A–Z"
 sort_type_asc: "Tipo A–Z"
 sort_recently_updated: "Actualizados recientemente"
+sort_feminized_first: "Primero feminizadas"
+sort_regular_first: "Primero regulares"
 photoperiod: "Fotoperíodo"
 
 # Mensajes de respuesta de la API (usados por los handlers a través del helper T())
