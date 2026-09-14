@@ -9,6 +9,7 @@
 /output/
 /planning/
 /uploads/
+/tmp/**
 
 /.env
 /CLAUDE.md
