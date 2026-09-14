@@ -265,7 +265,6 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentView = "living";
     let currentLayout = localStorage.getItem("plantsLayout") || "cards";
     let allPlants = [];
-    let tableSort = { key: null, asc: true };
 
     // Set initial layout button state
     layoutButtons.forEach(b => {
@@ -394,15 +393,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (status) data = data.filter(p => p.status === status);
 
         // Use table header sort if active, otherwise use dropdown
-        let sortKey, sortAsc;
-        if (tableSort.key) {
-            sortKey = tableSort.key;
-            sortAsc = tableSort.asc;
-        } else {
-            const [k, d] = sort.split("-");
-            sortKey = k;
-            sortAsc = d === "asc";
-        }
+        const { key: sortKey, asc: sortAsc } = sortableTable.getSort();
 
         data.sort((a, b) => {
             let va, vb;
@@ -803,37 +794,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ----- Table header sort click -----
-    document.querySelectorAll(".pt-sortable").forEach(th => {
-        th.style.cursor = "pointer";
-        th.addEventListener("click", () => {
-            const sortKey = th.dataset.sort;
-            if (tableSort.key === sortKey) {
-                tableSort.asc = !tableSort.asc;
-            } else {
-                tableSort.key = sortKey;
-                tableSort.asc = true;
-            }
-            // Update sort icons
-            document.querySelectorAll(".pt-sortable i").forEach(icon => {
-                icon.className = "fa-solid fa-sort ms-1 text-muted";
-            });
-            const icon = th.querySelector("i");
-            if (icon) icon.className = `fa-solid fa-sort-${tableSort.asc ? "up" : "down"} ms-1`;
-
-            // Also sync the dropdown sort value if there's a matching option
-            const mappedSort = {
-                "name": tableSort.asc ? "name-asc" : "name-desc",
-                "strain": tableSort.asc ? "strain-asc" : "strain-desc",
-                "zone": null,
-                "status": null,
-                "col1": tableSort.asc ? "day-asc" : "day-desc",
-                "col2": tableSort.asc ? "day-asc" : "day-desc",
-            }[sortKey];
-            if (mappedSort && sortBy.querySelector(`option[value="${mappedSort}"]`)) {
-                sortBy.value = mappedSort;
-            }
-            applyFilters();
-        });
+    const sortableTable = new IsleySortableTable(sortBy, {
+        prefix: "pt",
+        headerToDropdown: {
+            name:   { asc: "name-asc", desc: "name-desc" },
+            strain: { asc: "strain-asc" },
+            col1:   { asc: "day-asc", desc: "day-desc" },
+            col2:   { asc: "day-asc", desc: "day-desc" },
+        },
+        dropdownToHeader: { name: "name", strain: "strain", day: ["col1", "col2"] },
+        onChange: applyFilters,
     });
 
     // ----- Event listeners -----
@@ -841,25 +811,13 @@ document.addEventListener("DOMContentLoaded", () => {
     filterZone.addEventListener("change", applyFilters);
     filterBreeder.addEventListener("change", applyFilters);
     filterStatus.addEventListener("change", applyFilters);
-    sortBy.addEventListener("change", () => {
-        // When dropdown sort is used, clear table header sort
-        tableSort = { key: null, asc: true };
-        document.querySelectorAll(".pt-sortable i").forEach(icon => {
-            icon.className = "fa-solid fa-sort ms-1 text-muted";
-        });
-        applyFilters();
-    });
 
     clearBtn.addEventListener("click", () => {
         searchInput.value = "";
         filterZone.value = "";
         filterBreeder.value = "";
         filterStatus.value = "";
-        sortBy.value = "name-asc";
-        tableSort = { key: null, asc: true };
-        document.querySelectorAll(".pt-sortable i").forEach(icon => {
-            icon.className = "fa-solid fa-sort ms-1 text-muted";
-        });
+        sortableTable.resetToDefault("name-asc");
         applyFilters();
     });
 
@@ -868,11 +826,7 @@ document.addEventListener("DOMContentLoaded", () => {
             currentView = btn.dataset.view;
             viewButtons.forEach(b => b.classList.remove("active"));
             btn.classList.add("active");
-            // Reset table sort on view switch
-            tableSort = { key: null, asc: true };
-            document.querySelectorAll(".pt-sortable i").forEach(icon => {
-                icon.className = "fa-solid fa-sort ms-1 text-muted";
-            });
+            sortableTable.resetToDefault(); // no forced value — let the water-desc/view logic below decide
             fetchPlants(currentView);
         });
     });
