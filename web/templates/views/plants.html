@@ -368,7 +368,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Hide "Needs Water" sort option for non-living views
         const waterSortOpt = sortBy.querySelector('option[value="water-desc"]');
         if (waterSortOpt) waterSortOpt.style.display = currentView === "living" ? "" : "none";
-        if (currentView !== "living" && sortBy.value === "water-desc") sortBy.value = "name-asc";
+        if (currentView !== "living" && sortBy.value === "water-desc") sortableTable.resetToDefault("name-asc");
     }
 
     // ----- Filter + Sort -----
@@ -378,7 +378,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const zone = filterZone.value;
         const breeder = filterBreeder.value;
         const status = filterStatus.value;
-        const sort = sortBy.value;
 
         if (query) {
             data = data.filter(p =>
