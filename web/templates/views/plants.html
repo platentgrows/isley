@@ -262,6 +262,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const statusOptions = Array.isArray(parsedStatusOptions) ? parsedStatusOptions : [];
     const statusIdByName = new Map(statusOptions.map(s => [s.status, s.id]));
 
+    // ----- Table header sort click -----
+    const sortableTable = new IsleySortableTable(sortBy, {
+        prefix: "pt",
+        headerToDropdown: {
+            name:   { asc: "name-asc", desc: "name-desc" },
+            strain: { asc: "strain-asc" },
+            col1:   { asc: "day-asc", desc: "day-desc" },
+            col2:   { asc: "day-asc", desc: "day-desc" },
+        },
+        dropdownToHeader: { name: "name", strain: "strain", day: ["col1", "col2"] },
+        onChange: applyFilters,
+    });
+
     let currentView = "living";
     let currentLayout = localStorage.getItem("plantsLayout") || "cards";
     let allPlants = [];
@@ -791,19 +804,6 @@ document.addEventListener("DOMContentLoaded", () => {
             .catch(() => uiMessages.showToast("{{ .lcl.failed_to_add_activity }}" || "Failed to add activity", "danger"));
         });
     }
-
-    // ----- Table header sort click -----
-    const sortableTable = new IsleySortableTable(sortBy, {
-        prefix: "pt",
-        headerToDropdown: {
-            name:   { asc: "name-asc", desc: "name-desc" },
-            strain: { asc: "strain-asc" },
-            col1:   { asc: "day-asc", desc: "day-desc" },
-            col2:   { asc: "day-asc", desc: "day-desc" },
-        },
-        dropdownToHeader: { name: "name", strain: "strain", day: ["col1", "col2"] },
-        onChange: applyFilters,
-    });
 
     // ----- Event listeners -----
     searchInput.addEventListener("input", debounce(applyFilters, 200));

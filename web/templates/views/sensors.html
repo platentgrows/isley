@@ -293,6 +293,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const clearBtn = document.getElementById("clearFilters");
     const resultCount = document.getElementById("resultCount");
 
+    // ----- Table header sort click -----
+    const sortableTable = new IsleySortableTable(sortBy, {
+        prefix: "sn",
+        headerToDropdown: {
+            name:   { asc: "name-asc", desc: "name-desc" },
+            zone:   { asc: "zone-asc" },
+            source: { asc: "source-asc" },
+            type:   { asc: "type-asc" },
+        },
+        dropdownToHeader: { name: "name", zone: "zone", source: "source", type: "type" },
+        onChange: applyFilters,
+    });
+
     let allSensors = [];
 
     // Visibility label map (injected from server-side locale)
@@ -470,19 +483,6 @@ document.addEventListener("DOMContentLoaded", () => {
         let t;
         return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
     }
-
-    // ----- Table header sort click -----
-    const sortableTable = new IsleySortableTable(sortBy, {
-        prefix: "sn",
-        headerToDropdown: {
-            name:   { asc: "name-asc", desc: "name-desc" },
-            zone:   { asc: "zone-asc" },
-            source: { asc: "source-asc" },
-            type:   { asc: "type-asc" },
-        },
-        dropdownToHeader: { name: "name", zone: "zone", source: "source", type: "type" },
-        onChange: applyFilters,
-    });
 
     // ----- Event listeners -----
     searchInput.addEventListener("input", debounce(applyFilters, 200));
