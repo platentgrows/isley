@@ -37,7 +37,7 @@ class IsleySortableTable {
 
         this._headers = document.querySelectorAll(`.${this.opts.prefix}-sortable`);
         this._bindHeaders();
-        if (this.dropdown) this._bindDropdown();
+        if (this.dropdown) { this._bindDropdown(); this._syncIconsFromDropdown(); }
     }
 
     /* ---- public API ---- */
@@ -55,13 +55,23 @@ class IsleySortableTable {
     /** Used by "Clear filters" buttons and view-switch handlers. */
     resetToDefault(defaultDropdownValue) {
         this.state = { key: null, asc: true };
-        this._resetIcons();
         if (this.dropdown && defaultDropdownValue) {
             this.dropdown.value = defaultDropdownValue;
         }
+        this._syncIconsFromDropdown();
     }
 
     /* ---- private ---- */
+
+    _syncIconsFromDropdown() {
+        this._resetIcons();
+        if (!this.dropdown) return;
+        const [key, dir] = this.dropdown.value.split("-");
+        const mapped = this.opts.dropdownToHeader[key];
+        if (mapped) {
+            (Array.isArray(mapped) ? mapped : [mapped]).forEach(k => this._setIcon(k, dir === "asc"));
+        }
+    }
 
     _resetIcons() {
         document.querySelectorAll(`.${this.opts.prefix}-sortable i`).forEach(icon => {
@@ -80,12 +90,13 @@ class IsleySortableTable {
             th.style.cursor = "pointer";
             th.addEventListener("click", () => {
                 const key = th.dataset.sort;
-                if (this.state.key === key) {
-                    this.state.asc = !this.state.asc;
-                } else {
-                    this.state.key = key;
-                    this.state.asc = true;
-                }
+                const icon = th.querySelector("i");
+                const current = this.state.key === key ? this.state.asc
+                    : icon && icon.classList.contains("fa-sort-up") ? true
+                    : icon && icon.classList.contains("fa-sort-down") ? false
+                    : null;
+                this.state.key = key;
+                this.state.asc = current === null ? true : !current;
 
                 this._resetIcons();
                 this._setIcon(key, this.state.asc);
@@ -106,14 +117,7 @@ class IsleySortableTable {
     _bindDropdown() {
         this.dropdown.addEventListener("change", () => {
             this.state = { key: null, asc: true };
-            this._resetIcons();
-
-            const [key, dir] = this.dropdown.value.split("-");
-            const asc = dir === "asc";
-            const mapped = this.opts.dropdownToHeader[key];
-            if (mapped) {
-                (Array.isArray(mapped) ? mapped : [mapped]).forEach(k => this._setIcon(k, asc));
-            }
+            this._syncIconsFromDropdown();
 
             if (this.opts.onChange) this.opts.onChange(this.state);
         });
