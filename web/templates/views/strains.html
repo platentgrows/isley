@@ -131,6 +131,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const viewButtons = document.querySelectorAll(".view-button");
     const layoutButtons = document.querySelectorAll(".layout-toggle");
 
+    // ----- Table header sort click -----
+    const sortableTable = new IsleySortableTable(sortBy, {
+        prefix: "st",
+        headerToDropdown: {
+            name:    { asc: "name-asc", desc: "name-desc" },
+            breeder: { asc: "breeder-asc", desc: "breeder-desc" },
+            indica:  { asc: "sativa-desc", desc: "indica-desc" },
+            seeds:   { asc: "seeds-asc", desc: "seeds-desc" },
+        },
+        dropdownToHeader: { name: "name", breeder: "breeder", indica: "indica", seeds: "seeds" },
+        onChange: applyFilters,
+    });
+
     let currentView = "in-stock";
     let currentLayout = localStorage.getItem("strainsLayout") || "cards";
     let allStrains = [];
@@ -378,19 +391,6 @@ document.addEventListener("DOMContentLoaded", () => {
         let t;
         return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
     }
-
-    // ----- Table header sort click -----
-    const sortableTable = new IsleySortableTable(sortBy, {
-        prefix: "st",
-        headerToDropdown: {
-            name:    { asc: "name-asc", desc: "name-desc" },
-            breeder: { asc: "breeder-asc" },
-            indica:  { desc: "indica-desc" },
-            seeds:   { asc: "seeds-asc", desc: "seeds-desc" },
-        },
-        dropdownToHeader: { name: "name", breeder: "breeder", indica: "indica", sativa: "indica", seeds: "seeds" },
-        onChange: applyFilters,
-    });
 
     // ----- Event listeners -----
     searchInput.addEventListener("input", debounce(applyFilters, 200));
