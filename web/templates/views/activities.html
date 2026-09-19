@@ -111,6 +111,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const exportCsv = document.getElementById("exportCsv");
     const exportXlsx = document.getElementById("exportXlsx");
 
+    // Table header sorting
+    const sortableTable = new IsleySortableTable(null, { prefix: "al", onChange: applyFilters });
+
+    clearBtn.addEventListener("click", () => {
+        searchInput.value = "";
+        filterPlant.value = "";
+        filterActivity.value = "";
+        filterZone.value = "";
+        filterFrom.value = "";
+        filterTo.value = "";
+        sortableTable.resetToDefault();
+        applyFilters();
+    });
+
     let allActivities = [];
 
     // ----- Fetch activities -----
@@ -320,20 +334,6 @@ document.addEventListener("DOMContentLoaded", () => {
     filterZone.addEventListener("change", applyFilters);
     filterFrom.addEventListener("change", applyFilters);
     filterTo.addEventListener("change", applyFilters);
-
-    // Table header sorting
-    const sortableTable = new IsleySortableTable(null, { prefix: "al", onChange: applyFilters });
-
-    clearBtn.addEventListener("click", () => {
-        searchInput.value = "";
-        filterPlant.value = "";
-        filterActivity.value = "";
-        filterZone.value = "";
-        filterFrom.value = "";
-        filterTo.value = "";
-        sortableTable.resetToDefault();
-        applyFilters();
-    });
 
     // ----- Initial load -----
     fetchActivities();
