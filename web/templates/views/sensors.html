@@ -66,8 +66,17 @@
                     <option value="name-asc">{{ .lcl.sort_name_asc }}</option>
                     <option value="name-desc">{{ .lcl.sort_name_desc }}</option>
                     <option value="zone-asc">{{ .lcl.sort_zone_asc }}</option>
+                    <option value="zone-desc">{{ .lcl.sort_zone_desc }}</option>
                     <option value="source-asc">{{ .lcl.sort_source_asc }}</option>
+                    <option value="source-desc">{{ .lcl.sort_source_desc }}</option>
+                    <option value="device-asc">{{ .lcl.sort_device_asc }}</option>
+                    <option value="device-desc">{{ .lcl.sort_device_desc }}</option>
                     <option value="type-asc">{{ .lcl.sort_type_asc }}</option>
+                    <option value="type-desc">{{ .lcl.sort_type_desc }}</option>
+                    <option value="unit-asc">{{ .lcl.sort_unit_asc }}</option>
+                    <option value="unit-desc">{{ .lcl.sort_unit_desc }}</option>
+                    <option value="visibility-asc">{{ .lcl.sort_visibility_asc }}</option>
+                    <option value="visibility-desc">{{ .lcl.sort_visibility_desc }}</option>
                     <option value="updated-desc">{{ .lcl.sort_recently_updated }}</option>
                 </select>
             </div>
@@ -297,12 +306,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const sortableTable = new IsleySortableTable(sortBy, {
         prefix: "sn",
         headerToDropdown: {
-            name:   { asc: "name-asc", desc: "name-desc" },
-            zone:   { asc: "zone-asc" },
-            source: { asc: "source-asc" },
-            type:   { asc: "type-asc" },
+            name:       { asc: "name-asc",       desc: "name-desc" },
+            zone:       { asc: "zone-asc",       desc: "zone-desc" },
+            source:     { asc: "source-asc",     desc: "source-desc" },
+            device:     { asc: "device-asc",     desc: "device-desc" },
+            type:       { asc: "type-asc",       desc: "type-desc" },
+            unit:       { asc: "unit-asc",       desc: "unit-desc" },
+            visibility: { asc: "visibility-asc", desc: "visibility-desc" },
         },
-        dropdownToHeader: { name: "name", zone: "zone", source: "source", type: "type" },
+        dropdownToHeader: { name: "name", zone: "zone", source: "source", device: "device",
+                            type: "type", unit: "unit", visibility: "visibility" },
         onChange: applyFilters,
     });
 
