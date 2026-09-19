@@ -7,9 +7,13 @@
  *   const sortableTable = new IsleySortableTable(sortBySelectEl, {
  *       prefix:           "pt",     // CSS class prefix, e.g. ".pt-sortable"
  *       headerToDropdown: {},       // data-sort key -> { asc, desc } dropdown option values
- *       dropdownToHeader: {},       // dropdown value prefix -> data-sort key or [keys]
+ *       dropdownToHeader: {},       // dropdown value prefix -> data-sort key, [keys], or
+ *                                   //   { key, invert: true } when the dropdown option is the
+ *                                   //   reverse of the header (e.g. "sativa-desc" == indica asc)
  *       onChange:         null,     // callback(state) -> call your applyFilters()
  *   });
+ *   Any headerToDropdown / dropdownToHeader entry may be a function returning the entry,
+ *   for columns that mean different things in different views.
  *
  *   // Programmatic control:
  *   sortableTable.getSort();               // { key, asc } - single source of truth for applyFilters()
@@ -63,14 +67,22 @@ class IsleySortableTable {
 
     /* ---- private ---- */
 
+    // A mapping entry may be a function, for pages whose columns change meaning per view.
+    _resolve(entry) {
+        return typeof entry === "function" ? entry() : entry;
+    }
+
     _syncIconsFromDropdown() {
         this._resetIcons();
         if (!this.dropdown) return;
         const [key, dir] = this.dropdown.value.split("-");
-        const mapped = this.opts.dropdownToHeader[key];
-        if (mapped) {
-            (Array.isArray(mapped) ? mapped : [mapped]).forEach(k => this._setIcon(k, dir === "asc"));
-        }
+        const asc = dir === "asc";
+        const mapped = this._resolve(this.opts.dropdownToHeader[key]);
+        if (!mapped) return;
+        (Array.isArray(mapped) ? mapped : [mapped]).forEach(m => {
+            const target = typeof m === "string" ? { key: m } : m;
+            this._setIcon(target.key, target.invert ? !asc : asc);
+        });
     }
 
     _resetIcons() {
@@ -102,7 +114,7 @@ class IsleySortableTable {
                 this._setIcon(key, this.state.asc);
 
                 if (this.dropdown) {
-                    const mapped = this.opts.headerToDropdown[key];
+                    const mapped = this._resolve(this.opts.headerToDropdown[key]);
                     const value = mapped && (this.state.asc ? mapped.asc : mapped.desc);
                     if (value && this.dropdown.querySelector(`option[value="${value}"]`)) {
                         this.dropdown.value = value;
