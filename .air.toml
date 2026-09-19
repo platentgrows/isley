@@ -1,0 +1,47 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  # Isley's entrypoint is main.go at the repo root (Gin app).
+  cmd = "go build -o ./tmp/main ."
+  bin = "tmp/main"
+
+  # ISLEY_PORT=8081 so Air's proxy (below) can own 8080, the port you
+  # actually browse to. GIN_MODE=debug gives verbose request logging +
+  # full error output instead of Gin's terse release-mode logs.
+  full_bin = "ISLEY_PORT=8081 GIN_MODE=debug ./tmp/main"
+
+  # Recompile on Go source AND on the template/HTML/JS/CSS that live
+  # under web/ — Gin's LoadHTMLGlob-style loading happens once at
+  # startup, so a template edit needs a real restart, not just a
+  # browser refresh, to actually be picked up.
+  include_ext = ["go", "html", "tmpl", "js", "css"]
+
+  # Don't rebuild the whole app because a test file changed, and don't
+  # let watcher/tests noise trigger constant restarts.
+  exclude_dir = ["tmp", "tests", "docs", ".git", "scripts"]
+  exclude_regex = ["_test\\.go"]
+
+  # Don't treat the SQLite db or uploaded images as source changes —
+  # both live/churn inside the repo tree during local dev.
+  exclude_file = ["data/isley.db"]
+  exclude_unchanged = true
+
+  delay = 200 # ms — small debounce so a save-all in your editor doesn't trigger 5 rebuilds
+  stop_on_error = true
+  send_interrupt = true
+  kill_delay = "2s" # give the watcher/ goroutines (sensor polling) a moment to exit cleanly
+
+[proxy]
+  enabled = true
+  proxy_port = 8080   # browse here — this is the port with live-reload injected
+  app_port = 8081      # Isley itself listens here (matches full_bin above)
+
+[log]
+  time = true
+
+[misc]
+  clean_on_exit = true
+
+[screen]
+  clear_on_rebuild = true
