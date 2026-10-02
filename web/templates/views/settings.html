@@ -386,7 +386,7 @@ color: #0d6efd; /* Primary color */
                         </thead>
                         <tbody>
                         {{ range .breeders }}
-                        <tr class="clickable-row breeder-row" data-breeder='{{ json . }}'>
+                        <tr class="clickable-row breeder-row" data-breeder-id="{{ .ID }}" data-breeder='{{ json . }}'>
                             <td>{{ .Name }}</td>
                         </tr>
                         {{ end }}
@@ -1139,6 +1139,47 @@ color: #0d6efd; /* Primary color */
 </div>
 
 <script nonce="{{ .cspNonce }}">
+
+    // Add/edit/delete handlers on this page refresh by reloading. The page
+    // deliberately opens on the Settings tab on a normal visit, so a plain
+    // reload dropped you back there at the top (e.g. after deleting a breeder
+    // on the Tables tab). Remember the active tab and scroll position for the
+    // one reload that follows, then restore them and forget them.
+    const SETTINGS_RELOAD_KEY = 'settingsReloadState';
+
+    function reloadKeepingPlace() {
+        try {
+            const activeTab = document.querySelector('#settingsTabs .nav-link.active');
+            sessionStorage.setItem(SETTINGS_RELOAD_KEY, JSON.stringify({
+                tab: activeTab ? activeTab.getAttribute('data-bs-target') : null,
+                scrollY: window.scrollY,
+            }));
+        } catch (e) {
+            // Storage unavailable: fall back to a plain reload.
+        }
+        window.location.reload();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        let state = null;
+        try {
+            state = JSON.parse(sessionStorage.getItem(SETTINGS_RELOAD_KEY) || 'null');
+            sessionStorage.removeItem(SETTINGS_RELOAD_KEY);
+        } catch (e) {
+            return;
+        }
+        if (!state) return;
+
+        const restoreScroll = () => window.scrollTo(0, state.scrollY || 0);
+        const tabBtn = state.tab ? document.querySelector(`#settingsTabs [data-bs-target="${state.tab}"]`) : null;
+        if (tabBtn && !tabBtn.classList.contains('active')) {
+            // Scroll once the tab pane has finished fading in and has height.
+            tabBtn.addEventListener('shown.bs.tab', restoreScroll, { once: true });
+            bootstrap.Tab.getOrCreateInstance(tabBtn).show();
+        } else {
+            restoreScroll();
+        }
+    });
     document.addEventListener("DOMContentLoaded", () => {
         const pollingSlider = document.getElementById("pollingInterval");
         const pollingValue = document.getElementById("pollingValue");
@@ -1215,7 +1256,7 @@ color: #0d6efd; /* Primary color */
                     // Success: Close modal and reload page
                     const modal = bootstrap.Modal.getInstance(document.getElementById("addStreamModal"));
                     modal.hide();
-                    window.location.reload(); // Refresh page to show updated data
+                    reloadKeepingPlace(); // Refresh page to show updated data
                 })
                 .catch((error) => {
                     console.error("Error:", error);
@@ -1259,7 +1300,7 @@ color: #0d6efd; /* Primary color */
                     // Success: Close modal and reload page
                     const modal = bootstrap.Modal.getInstance(document.getElementById("addZoneModal"));
                     modal.hide();
-                    window.location.reload(); // Refresh page to show updated data
+                    reloadKeepingPlace(); // Refresh page to show updated data
                 })
                 .catch((error) => {
                     console.error("Error:", error);
@@ -1327,7 +1368,7 @@ color: #0d6efd; /* Primary color */
                 body: JSON.stringify(payload),
             })
                 .then(response => response.json())
-                .then(() => location.reload())
+                .then(() => reloadKeepingPlace())
                 .catch(err => uiMessages.showToast(uiMessages.t('failed_to_update_zone'), 'danger'));
         });
 
@@ -1338,7 +1379,7 @@ color: #0d6efd; /* Primary color */
                 if (!confirmed) return;
                 fetch(`/zones/${zoneId}`, { method: "DELETE" })
                     .then(response => response.json())
-                    .then(() => location.reload())
+                    .then(() => reloadKeepingPlace())
                     .catch(err => uiMessages.showToast(uiMessages.t('failed_to_delete_zone'), 'danger'));
             });
         });
@@ -1529,7 +1570,7 @@ color: #0d6efd; /* Primary color */
                     // Success: Close modal and reload page
                     const modal = bootstrap.Modal.getInstance(document.getElementById("addActivityModal"));
                     modal.hide();
-                    window.location.reload(); // Refresh page to show updated data
+                    reloadKeepingPlace(); // Refresh page to show updated data
                 })
                 .catch((error) => {
                     console.error("Error:", error);
@@ -1601,7 +1642,7 @@ color: #0d6efd; /* Primary color */
                 body: JSON.stringify(payload),
             })
                 .then(response => response.json())
-                .then(() => location.reload())
+                .then(() => reloadKeepingPlace())
                 .catch(err => uiMessages.showToast(uiMessages.t('failed_to_update_activity'), 'danger'));
         });
 
@@ -1612,7 +1653,7 @@ color: #0d6efd; /* Primary color */
                 if (!confirmed) return;
                 fetch(`/activities/${activityId}`, { method: "DELETE" })
                     .then(response => response.json())
-                    .then(() => location.reload())
+                    .then(() => reloadKeepingPlace())
                     .catch(err => uiMessages.showToast(uiMessages.t('failed_to_delete_activity'), 'danger'));
             });
         });
@@ -1653,7 +1694,7 @@ color: #0d6efd; /* Primary color */
                 body: JSON.stringify(payload),
             })
                 .then(response => response.json())
-                .then(() => location.reload())
+                .then(() => reloadKeepingPlace())
                 .catch(err => uiMessages.showToast(uiMessages.t('failed_to_update_stream'), 'danger'));
         });
 
@@ -1664,7 +1705,7 @@ color: #0d6efd; /* Primary color */
                 if (!confirmed) return;
                 fetch(`/streams/${streamId}`, { method: "DELETE" })
                     .then(response => response.json())
-                    .then(() => location.reload())
+                    .then(() => reloadKeepingPlace())
                     .catch(err => uiMessages.showToast(uiMessages.t('failed_to_delete_stream'), 'danger'));
             });
         });
@@ -1706,7 +1747,7 @@ color: #0d6efd; /* Primary color */
                     // Success: Close modal and reload page
                     const modal = bootstrap.Modal.getInstance(document.getElementById("addMetricModal"));
                     modal.hide();
-                    window.location.reload(); // Refresh page to show updated data
+                    reloadKeepingPlace(); // Refresh page to show updated data
                 })
                 .catch((error) => {
                     console.error("Error:", error);
@@ -1746,7 +1787,7 @@ color: #0d6efd; /* Primary color */
                 body: JSON.stringify(payload),
             })
                 .then(response => response.json())
-                .then(() => location.reload())
+                .then(() => reloadKeepingPlace())
                 .catch(err => uiMessages.showToast(uiMessages.t('failed_to_update_metric'), 'danger'));
         });
 
@@ -1757,7 +1798,7 @@ color: #0d6efd; /* Primary color */
                 if (!confirmed) return;
                 fetch(`/metrics/${metricId}`, { method: "DELETE" })
                     .then(response => response.json())
-                    .then(() => location.reload())
+                    .then(() => reloadKeepingPlace())
                     .catch(err => uiMessages.showToast(uiMessages.t('failed_to_delete_metric'), 'danger'));
             });
         });
@@ -1797,7 +1838,7 @@ color: #0d6efd; /* Primary color */
                     // Success: Close modal and reload page
                     const modal = bootstrap.Modal.getInstance(document.getElementById("addBreederModal"));
                     modal.hide();
-                    window.location.reload(); // Refresh page to show updated data
+                    reloadKeepingPlace(); // Refresh page to show updated data
                 })
                 .catch((error) => {
                     console.error("Error:", error);
@@ -1835,7 +1876,7 @@ color: #0d6efd; /* Primary color */
                 body: JSON.stringify(payload),
             })
                 .then(response => response.json())
-                .then(() => location.reload())
+                .then(() => reloadKeepingPlace())
                 .catch(err => uiMessages.showToast(uiMessages.t('failed_to_update_breeder'), 'danger'));
         });
 
@@ -1845,9 +1886,20 @@ color: #0d6efd; /* Primary color */
             uiMessages.confirmDelete(uiMessages.t('delete_breeder_confirm'), uiMessages.t('delete_breeder', 'Delete Breeder')).then(confirmed => {
                 if (!confirmed) return;
                 fetch(`/breeders/${breederId}`, { method: "DELETE" })
-                    .then(response => response.json())
-                    .then(() => location.reload())
-                    .catch(err => uiMessages.showToast(uiMessages.t('failed_to_delete_breeder'), 'danger'));
+                    .then(async response => {
+                        const data = await response.json().catch(() => ({}));
+                        if (!response.ok) throw new Error(data.error || '');
+                        return data;
+                    })
+                    .then(data => {
+                        // Remove the row in place; no reload, so the active tab
+                        // and scroll position are untouched.
+                        const row = document.querySelector(`.breeder-row[data-breeder-id="${breederId}"]`);
+                        if (row) row.remove();
+                        editBreederModal.hide();
+                        uiMessages.showToast(data.message || uiMessages.t('api_breeder_deleted', 'Breeder deleted'), 'success');
+                    })
+                    .catch(err => uiMessages.showToast(err.message || uiMessages.t('failed_to_delete_breeder', 'Failed to delete breeder. Please try again.'), 'danger'));
             });
         });
     });
@@ -1886,7 +1938,7 @@ color: #0d6efd; /* Primary color */
                     .then((response) => {
                         if (response.ok) {
                             uiMessages.showToast(uiMessages.t('logo_uploaded_successfully') || 'Logo uploaded', 'success');
-                            location.reload();
+                            reloadKeepingPlace();
                         } else {
                             uiMessages.showToast(uiMessages.t('error_uploading_logo') || 'Error uploading logo', 'danger');
                         }
@@ -2491,7 +2543,7 @@ color: #0d6efd; /* Primary color */
                         result.innerHTML = '<div class="alert alert-success mb-0"><strong>' +
                             bkT.restoreComplete + '</strong>' + (status.tables || 0) + bkT.tablesFilesRestored +
                             (status.files || 0) + bkT.filesRestored + '</div>';
-                        setTimeout(() => location.reload(), 2000);
+                        setTimeout(() => reloadKeepingPlace(), 2000);
                     } else {
                         progress.style.display = "none";
                         result.style.display = "block";
