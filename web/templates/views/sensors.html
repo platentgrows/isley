@@ -715,7 +715,7 @@ document.addEventListener("DOMContentLoaded", () => {
             server_address: serverAddress,
         };
         if (!currentScanEndpoint) {
-            uiMessages.showToast(uiMessages.t('no_scan_endppoint') || '{{ .lcl.no_scan_endppoint }}', 'warning');
+            uiMessages.showToast(uiMessages.t('no_scan_endpoint', '{{ .lcl.no_scan_endpoint }}'), 'warning');
             return;
         }
         fetch(currentScanEndpoint, {
