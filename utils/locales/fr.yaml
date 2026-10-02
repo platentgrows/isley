@@ -764,3 +764,17 @@ settings_cannadb: "Import de variétés CannaDB"
 # English: View on CannaDB
 view_on_cannadb: "Voir sur CannaDB"
 
+# Confirm dialogs (ui-messages.js showConfirm and call sites)
+confirm: "Confirmer"
+cancel: "Annuler"
+ok: "OK"
+delete: "Supprimer"
+confirm_delete_strain: "Êtes-vous sûr de vouloir supprimer cette variété ?"
+confirm_delete_image: "Êtes-vous sûr de vouloir supprimer cette image ?"
+confirm_delete_plant: "Êtes-vous sûr de vouloir supprimer cette plante ? Cette action est irréversible."
+confirm_set_status_to: "Êtes-vous sûr de vouloir définir le statut sur {status} ?"
+confirm_delete_backup: "Supprimer la sauvegarde {name} ?"
+delete_image: "Supprimer l'image"
+delete_stream: "Supprimer le flux"
+delete_backup: "Supprimer la sauvegarde"
+replace_database: "Remplacer la base de données"
