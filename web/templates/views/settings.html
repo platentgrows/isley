@@ -2047,8 +2047,12 @@ color: #0d6efd; /* Primary color */
     }
 
     function regenerateAPIKey(id, name) {
-        const msg = uiMessages.t('api_key_regenerate_confirm') || 'Regenerate this key? The current value will stop working immediately.';
-        uiMessages.showConfirm(name ? (msg + ' (' + name + ')') : msg).then(confirmed => {
+        const msg = uiMessages.t('api_key_regenerate_confirm', 'Regenerate this key? The current value will stop working immediately.');
+        uiMessages.showConfirm(name ? (msg + ' (' + name + ')') : msg, {
+            title: uiMessages.t('settings_regenerate_key', 'Regenerate API Key'),
+            confirmText: uiMessages.t('api_key_regenerate', 'Regenerate'),
+            variant: 'danger',
+        }).then(confirmed => {
             if (!confirmed) return;
             fetch('/settings/api-keys/' + encodeURIComponent(id) + '/regenerate', { method: 'POST' })
                 .then(r => r.json().then(data => ({ ok: r.ok, data })))
@@ -2065,8 +2069,12 @@ color: #0d6efd; /* Primary color */
     }
 
     function revokeAPIKey(id, name) {
-        const msg = uiMessages.t('api_key_revoke_confirm') || 'Revoke this key? Any system using it will be locked out immediately.';
-        uiMessages.showConfirm(name ? (msg + ' (' + name + ')') : msg).then(confirmed => {
+        const msg = uiMessages.t('api_key_revoke_confirm', 'Revoke this key? Any system using it will be locked out immediately.');
+        uiMessages.showConfirm(name ? (msg + ' (' + name + ')') : msg, {
+            title: uiMessages.t('api_key_revoke', 'Revoke'),
+            confirmText: uiMessages.t('api_key_revoke', 'Revoke'),
+            variant: 'danger',
+        }).then(confirmed => {
             if (!confirmed) return;
             fetch('/settings/api-keys/' + encodeURIComponent(id), { method: 'DELETE' })
                 .then(r => r.json().then(data => ({ ok: r.ok, data })))
