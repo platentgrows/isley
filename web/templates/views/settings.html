@@ -1334,7 +1334,7 @@ color: #0d6efd; /* Primary color */
         deleteZoneButton.addEventListener("click", () => {
             const zoneId = document.getElementById("zoneId").value;
 
-            uiMessages.showConfirm(uiMessages.t('delete_zone_confirm')).then(confirmed => {
+            uiMessages.confirmDelete(uiMessages.t('delete_zone_confirm'), uiMessages.t('delete_zone', 'Delete Zone')).then(confirmed => {
                 if (!confirmed) return;
                 fetch(`/zones/${zoneId}`, { method: "DELETE" })
                     .then(response => response.json())
@@ -1608,7 +1608,7 @@ color: #0d6efd; /* Primary color */
         deleteActivityButton.addEventListener("click", () => {
             const activityId = document.getElementById("activityId").value;
 
-            uiMessages.showConfirm(uiMessages.t('delete_activity_confirm')).then(confirmed => {
+            uiMessages.confirmDelete(uiMessages.t('delete_activity_confirm'), uiMessages.t('delete_activity', 'Delete Activity')).then(confirmed => {
                 if (!confirmed) return;
                 fetch(`/activities/${activityId}`, { method: "DELETE" })
                     .then(response => response.json())
@@ -1660,7 +1660,7 @@ color: #0d6efd; /* Primary color */
         deleteStreamButton.addEventListener("click", () => {
             const streamId = document.getElementById("streamId").value;
 
-            uiMessages.showConfirm(uiMessages.t('delete_stream_confirm')).then(confirmed => {
+            uiMessages.confirmDelete(uiMessages.t('delete_stream_confirm'), uiMessages.t('delete_stream', 'Delete Stream')).then(confirmed => {
                 if (!confirmed) return;
                 fetch(`/streams/${streamId}`, { method: "DELETE" })
                     .then(response => response.json())
@@ -1753,7 +1753,7 @@ color: #0d6efd; /* Primary color */
         deleteMetricButton.addEventListener("click", () => {
             const metricId = document.getElementById("metricId").value;
 
-            uiMessages.showConfirm(uiMessages.t('delete_metric_confirm')).then(confirmed => {
+            uiMessages.confirmDelete(uiMessages.t('delete_metric_confirm'), uiMessages.t('delete_metric', 'Delete Metric')).then(confirmed => {
                 if (!confirmed) return;
                 fetch(`/metrics/${metricId}`, { method: "DELETE" })
                     .then(response => response.json())
@@ -1842,7 +1842,7 @@ color: #0d6efd; /* Primary color */
         deleteBreederButton.addEventListener("click", () => {
             const breederId = document.getElementById("breederId").value;
 
-            uiMessages.showConfirm(uiMessages.t('delete_breeder_confirm')).then(confirmed => {
+            uiMessages.confirmDelete(uiMessages.t('delete_breeder_confirm'), uiMessages.t('delete_breeder', 'Delete Breeder')).then(confirmed => {
                 if (!confirmed) return;
                 fetch(`/breeders/${breederId}`, { method: "DELETE" })
                     .then(response => response.json())
