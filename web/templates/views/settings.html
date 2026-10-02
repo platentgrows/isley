@@ -2310,9 +2310,12 @@ color: #0d6efd; /* Primary color */
 
                 // Wire delete buttons
                 document.querySelectorAll(".backup-delete-btn").forEach(btn => {
-                    btn.addEventListener("click", () => {
+                    btn.addEventListener("click", async () => {
                         const name = btn.dataset.name;
-                        if (!confirm("Delete backup " + name + "?")) return;
+                        const ok = await uiMessages.confirmDelete(
+                            uiMessages.t('confirm_delete_backup', 'Delete backup {name}?').replace('{name}', name),
+                            uiMessages.t('delete_backup', 'Delete Backup'));
+                        if (!ok) return;
                         fetch("/settings/backup/" + encodeURIComponent(name), { method: "DELETE" })
                         .then(() => loadBackupList());
                     });
@@ -2384,9 +2387,14 @@ color: #0d6efd; /* Primary color */
         const progressBar = document.getElementById("restoreProgressBar");
         const detailText = document.getElementById("restoreDetailText");
 
-        importBtn.addEventListener("click", () => {
+        importBtn.addEventListener("click", async () => {
             if (!selectedFile) return;
-            if (!confirm(bkT.confirmRestore)) return;
+            const ok = await uiMessages.showConfirm(bkT.confirmRestore, {
+                title: uiMessages.t('backup_restore_title', 'Restore Backup'),
+                confirmText: uiMessages.t('backup_restore_btn', 'Restore Backup'),
+                variant: 'danger',
+            });
+            if (!ok) return;
 
             const formData = new FormData();
             formData.append("backup", selectedFile);
@@ -2548,9 +2556,14 @@ color: #0d6efd; /* Primary color */
                 sqliteResult.style.display = "none";
             });
 
-            uploadSqliteBtn.addEventListener("click", () => {
+            uploadSqliteBtn.addEventListener("click", async () => {
                 if (!selectedSqliteFile) return;
-                if (!confirm(bkT.confirmSqliteReplace)) return;
+                const ok = await uiMessages.showConfirm(bkT.confirmSqliteReplace, {
+                    title: uiMessages.t('replace_database', 'Replace Database'),
+                    confirmText: uiMessages.t('replace_database', 'Replace Database'),
+                    variant: 'danger',
+                });
+                if (!ok) return;
 
                 const formData = new FormData();
                 formData.append("database", selectedSqliteFile);
