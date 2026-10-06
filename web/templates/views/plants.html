@@ -73,7 +73,14 @@
                     <option value="day-desc">{{ .lcl.sort_newest_first }}</option>
                     <option value="day-asc">{{ .lcl.sort_oldest_first }}</option>
                     <option value="strain-asc">{{ .lcl.sort_strain_asc }}</option>
+                    <option value="strain-desc">{{ .lcl.sort_strain_desc }}</option>
+                    <option value="zone-asc">{{ .lcl.sort_zone_asc }}</option>
+                    <option value="zone-desc">{{ .lcl.sort_zone_desc }}</option>
+                    <option value="status-asc">{{ .lcl.sort_status_asc }}</option>
+                    <option value="status-desc">{{ .lcl.sort_status_desc }}</option>
                     <option value="water-desc">{{ .lcl.sort_needs_water }}</option>
+                    <option value="weight-desc">{{ .lcl.sort_weight_desc }}</option>
+                    <option value="weight-asc">{{ .lcl.sort_weight_asc }}</option>
                 </select>
             </div>
             <div class="plants-filter-group">
@@ -272,11 +279,19 @@ document.addEventListener("DOMContentLoaded", () => {
         headerToDropdown: {
             name:   { asc: "name-asc",   desc: "name-desc" },
             strain: { asc: "strain-asc", desc: "strain-desc" },
-            col1:   { asc: "day-asc",    desc: "day-desc" },
-            col2:   { asc: "day-asc",    desc: "day-desc" },
+            zone:   { asc: "zone-asc",   desc: "zone-desc" },
+            status: { asc: "status-asc", desc: "status-desc" },
+            // col1 is harvest weight in the harvested view, plant age otherwise
+            col1:   () => currentView === "harvested"
+                        ? { asc: "weight-asc", desc: "weight-desc" }
+                        : { asc: "day-asc",    desc: "day-desc" },
+            col2:   { asc: "day-asc", desc: "day-desc" },
         },
         dropdownToHeader: {
-            name: "name", strain: "strain", day: ["col1", "col2"],
+            name: "name", strain: "strain", zone: "zone", status: "status", weight: "col1",
+            day: () => currentView === "harvested" ? "col2"
+                     : currentView === "dead"      ? "col1"
+                     : ["col1", "col2"],
         },
         onChange: applyFilters,
     });
@@ -380,10 +395,15 @@ document.addEventListener("DOMContentLoaded", () => {
             filterStatus.appendChild(opt);
         });
 
-        // Hide "Needs Water" sort option for non-living views
-        const waterSortOpt = sortBy.querySelector('option[value="water-desc"]');
-        if (waterSortOpt) waterSortOpt.style.display = currentView === "living" ? "" : "none";
-        if (currentView !== "living" && sortBy.value === "water-desc") sortBy.value = "name-asc";
+        // Hide sort options that only make sense in one view; fall back to Name A–Z if one is selected
+        const viewOnlySorts = { "water-desc": "living", "weight-desc": "harvested", "weight-asc": "harvested" };
+        Object.entries(viewOnlySorts).forEach(([value, view]) => {
+            const opt = sortBy.querySelector(`option[value="${value}"]`);
+            if (opt) opt.style.display = currentView === view ? "" : "none";
+        });
+        if (viewOnlySorts[sortBy.value] && viewOnlySorts[sortBy.value] !== currentView) {
+            sortableTable.resetToDefault("name-asc");
+        }
     }
 
     // ----- Filter + Sort -----
@@ -417,7 +437,24 @@ document.addEventListener("DOMContentLoaded", () => {
                     vb = (b.name || "").toLowerCase();
                     return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
                 case "day":
+                    if (currentView === "harvested" || currentView === "dead") {   // harvest / dead date
+                        va = a.harvest_date || "";
+                        vb = b.harvest_date || "";
+                        return sortAsc ? (va < vb ? -1 : va > vb ? 1 : 0) : (vb < va ? -1 : vb > va ? 1 : 0);
+                    }
+                    va = a.current_day || 0;
+                    vb = b.current_day || 0;
+                    return sortAsc ? va - vb : vb - va;
+                case "weight":
+                    va = a.harvest_weight || 0;
+                    vb = b.harvest_weight || 0;
+                    return sortAsc ? va - vb : vb - va;
                 case "col1":
+                    if (currentView === "dead") {   // col1 is the dead date
+                        va = a.harvest_date || "";
+                        vb = b.harvest_date || "";
+                        return sortAsc ? (va < vb ? -1 : va > vb ? 1 : 0) : (vb < va ? -1 : vb > va ? 1 : 0);
+                    }
                     if (currentView === "harvested") {
                         va = a.harvest_weight || 0;
                         vb = b.harvest_weight || 0;
