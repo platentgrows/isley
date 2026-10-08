@@ -403,10 +403,10 @@ func GetPlant(db *sql.DB, id string) types.Plant {
 	}
 	startDT = startDT.Local()
 
-	// Calculate current day and week
-	diff := time.Now().Sub(startDT)
-	currentDay := int(diff.Hours()/24) + 1
-	currentWeek := int((diff.Hours() / 24 / 7) + 1)
+	// Calculate current day and week. Calendar days (the start date is day 1)
+	// so the detail page agrees with the plant list.
+	currentDay := utils.CalendarDay(startDT, time.Now())
+	currentWeek := utils.WeekOf(currentDay)
 
 	// --- Load related data via focused sub-functions ---
 	statuses := GetStatuses(db)
