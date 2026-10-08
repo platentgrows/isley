@@ -1189,6 +1189,13 @@ ORDER BY p.start_dt, p.name;
 		} else {
 			estHarvestDate := startTime.AddDate(0, 0, plant.CycleTime)
 			plant.EstHarvestDate = estHarvestDate
+			// Compute day/week here rather than in SQL so the list (and the
+			// dashboard and overlay, which share this query) always agrees
+			// with the detail page and on both Postgres and SQLite. The SQL
+			// values scanned above remain only as a fallback if the start
+			// date cannot be parsed.
+			plant.CurrentDay = utils.CalendarDay(startTime, time.Now())
+			plant.CurrentWeek = utils.WeekOf(plant.CurrentDay)
 		}
 		plants = append(plants, plant)
 	}
