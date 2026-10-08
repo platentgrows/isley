@@ -401,7 +401,10 @@ func GetPlant(db *sql.DB, id string) types.Plant {
 		fieldLogger.WithError(err).Error("Failed to query plant")
 		return plant
 	}
-	startDT = startDT.Local()
+	// The DB stores naive local-time strings that the driver tags as UTC;
+	// keep the wall-clock digits (as every other date here does) rather than
+	// converting the instant, which shifts the date on non-UTC hosts.
+	startDT = utils.AsLocal(startDT)
 
 	// Calculate current day and week. Calendar days (the start date is day 1)
 	// so the detail page agrees with the plant list.
