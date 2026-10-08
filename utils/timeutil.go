@@ -30,3 +30,33 @@ func AsLocal(t time.Time) time.Time {
 	return time.Date(t.Year(), t.Month(), t.Day(),
 		t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), time.Local)
 }
+
+// CalendarDay returns the 1-based day number of a plant (or anything else
+// with a start date) as of now, where the calendar date of start is day 1.
+//
+// It counts calendar dates, not elapsed 24-hour periods, so the number rolls
+// over at local midnight regardless of the time of day the item was started.
+// The date of each argument is taken in that argument's own location, so
+// callers should pass a start time whose wall-clock digits are the intended
+// local time (see AsLocal) and time.Now() for now.
+//
+// A start date in the future yields a value below 1.
+func CalendarDay(start, now time.Time) int {
+	sy, sm, sd := start.Date()
+	ny, nm, nd := now.Date()
+	// Compare as UTC midnights so DST transitions (23h/25h days) cannot
+	// affect the whole-day count.
+	s := time.Date(sy, sm, sd, 0, 0, 0, 0, time.UTC)
+	n := time.Date(ny, nm, nd, 0, 0, 0, 0, time.UTC)
+	return int(n.Sub(s).Hours()/24) + 1
+}
+
+// WeekOf returns the 1-based week number for a 1-based day number from
+// CalendarDay (days 1-7 are week 1, days 8-14 are week 2, ...). Days before
+// the start date (day < 1) have no week and return 0.
+func WeekOf(day int) int {
+	if day < 1 {
+		return 0
+	}
+	return (day-1)/7 + 1
+}

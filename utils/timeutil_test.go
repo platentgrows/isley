@@ -85,3 +85,59 @@ func TestLayoutConstants_AreParseable(t *testing.T) {
 		})
 	}
 }
+
+func TestCalendarDay(t *testing.T) {
+	t.Parallel()
+	loc := time.FixedZone("test", -5*3600)
+	at := func(y int, m time.Month, d, h, mi int) time.Time {
+		return time.Date(y, m, d, h, mi, 0, 0, loc)
+	}
+	cases := []struct {
+		name  string
+		start time.Time
+		now   time.Time
+		want  int
+	}{
+		{"start date is day 1", at(2026, 10, 1, 20, 0), at(2026, 10, 1, 21, 0), 1},
+		{"same day, now earlier than start clock time", at(2026, 10, 1, 20, 0), at(2026, 10, 1, 0, 5), 1},
+		{"rolls over at midnight, not 24h after start", at(2026, 10, 1, 20, 0), at(2026, 10, 2, 0, 5), 2},
+		{"just under 24h later is already the next day", at(2026, 10, 1, 20, 0), at(2026, 10, 2, 9, 0), 2},
+		{"the case that disagreed: 8pm start checked at 9am six days on", at(2026, 10, 1, 20, 0), at(2026, 10, 7, 9, 0), 7},
+		{"month boundary", at(2026, 1, 30, 12, 0), at(2026, 2, 2, 12, 0), 4},
+		{"year boundary", at(2025, 12, 31, 23, 59), at(2026, 1, 1, 0, 1), 2},
+		{"start in the future", at(2026, 10, 5, 12, 0), at(2026, 10, 1, 12, 0), -3},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, CalendarDay(tc.start, tc.now))
+		})
+	}
+}
+
+// TestCalendarDay_AcrossDST guards the whole-day count over a spring-forward
+// (23h) and fall-back (25h) transition.
+func TestCalendarDay_AcrossDST(t *testing.T) {
+	t.Parallel()
+	ny, err := time.LoadLocation("America/New_York")
+	if err != nil {
+		t.Skip("tzdata not available")
+	}
+	// US DST began 2026-03-08 and ends 2026-11-01.
+	assert.Equal(t, 3, CalendarDay(
+		time.Date(2026, 3, 7, 22, 0, 0, 0, ny),
+		time.Date(2026, 3, 9, 1, 0, 0, 0, ny)))
+	assert.Equal(t, 3, CalendarDay(
+		time.Date(2026, 10, 31, 22, 0, 0, 0, ny),
+		time.Date(2026, 11, 2, 1, 0, 0, 0, ny)))
+}
+
+func TestWeekOf(t *testing.T) {
+	t.Parallel()
+	cases := []struct{ day, want int }{
+		{-3, 0}, {0, 0}, {1, 1}, {7, 1}, {8, 2}, {14, 2}, {15, 3}, {64, 10},
+	}
+	for _, tc := range cases {
+		assert.Equal(t, tc.want, WeekOf(tc.day), "day %d", tc.day)
+	}
+}
