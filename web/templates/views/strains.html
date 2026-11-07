@@ -189,16 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ----- Populate breeder dropdown -----
     function populateBreederFilter() {
-        const breeders = [...new Set(allStrains.map(s => s.breeder).filter(Boolean))].sort();
-        const current = filterBreeder.value;
-        filterBreeder.innerHTML = '<option value="">All</option>';
-        breeders.forEach(b => {
-            const opt = document.createElement("option");
-            opt.value = b;
-            opt.textContent = b;
-            if (b === current) opt.selected = true;
-            filterBreeder.appendChild(opt);
-        });
+        populateFilter(filterBreeder, allStrains, "breeder");
     }
 
     // ----- Filter + Sort -----
@@ -209,14 +200,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const type = filterType.value;
         const feminized = filterFeminized.value;
 
-        if (query) {
-            data = data.filter(s =>
-                s.name.toLowerCase().includes(query) ||
-                (s.breeder || "").toLowerCase().includes(query) ||
-                (s.short_desc || "").toLowerCase().includes(query) ||
-                (s.lineage || "").toLowerCase().includes(query)
-            );
-        }
+        data = list.filterByText(data, query, ["name", "breeder", "short_desc", "lineage"]);
         if (breeder) {
             data = data.filter(s => s.breeder === breeder);
         }
@@ -258,7 +242,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        resultCount.textContent = `${data.length} strain${data.length !== 1 ? "s" : ""}`;
+        resultCount.textContent = pluralize(data.length, "strain");
 
         if (data.length === 0) {
             cardsContainer.innerHTML = "";
@@ -408,19 +392,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // ----- Helpers -----
-    function esc(str) {
-        if (!str) return "";
-        const d = document.createElement("div");
-        d.textContent = str;
-        return d.innerHTML;
-    }
-
-    function debounce(fn, ms) {
-        let t;
-        return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
-    }
-
     // ----- Event listeners -----
     searchInput.addEventListener("input", debounce(applyFilters, 200));
     filterBreeder.addEventListener("change", applyFilters);
@@ -428,11 +399,13 @@ document.addEventListener("DOMContentLoaded", () => {
     filterFeminized.addEventListener("change", applyFilters);
 
     clearBtn.addEventListener("click", () => {
-        searchInput.value = "";
-        filterBreeder.value = "";
-        filterType.value = "";
-        filterFeminized.value = "";
-        sortableTable.resetToDefault("name-asc");
+
+        clearFilters({
+            searchInput,
+            selects: [filterBreeder, filterType, filterFeminized],
+            sortableTable,
+            defaultSort: "name-asc"
+        });
         applyFilters();
     });
 
