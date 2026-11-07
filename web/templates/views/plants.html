@@ -456,6 +456,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
+        sortableTable.refreshIcons();
+
         resultCount.textContent = pluralize(data.length, "plant");
 
         if (data.length === 0) {
