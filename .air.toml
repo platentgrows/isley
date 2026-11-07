@@ -1,30 +1,38 @@
 root = "."
 tmp_dir = "tmp"
 
+# Load local env vars (including a stable ISLEY_SESSION_SECRET) before
+# every build/run. .env is gitignored, so the secret stays out of git.
+env_files = [".env"]
+
 [build]
   # Isley's entrypoint is main.go at the repo root (Gin app).
-  cmd = "go build -o ./tmp/main ."
-  bin = "tmp/main"
+  # -buildvcs=false skips Go's per-build git stamping; nothing in Isley
+  # reads debug.ReadBuildInfo, and the version comes from VERSION.
+  cmd = "go build -buildvcs=false -o ./tmp/main ."
 
   # ISLEY_PORT=8081 so Air's proxy (below) can own 8080, the port you
   # actually browse to. GIN_MODE=debug gives verbose request logging +
   # full error output instead of Gin's terse release-mode logs.
   full_bin = "ISLEY_PORT=8081 GIN_MODE=debug ./tmp/main"
 
-  # Recompile on Go source AND on the template/HTML/JS/CSS that live
-  # under web/ — Gin's LoadHTMLGlob-style loading happens once at
-  # startup, so a template edit needs a real restart, not just a
-  # browser refresh, to actually be picked up.
-  include_ext = ["go", "html", "tmpl", "js", "css"]
+  # These are all embedded into the binary with go:embed, so they need a
+  # real rebuild/restart too — not just a browser refresh.
+  #   web/templates/**/*.html   templates
+  #   web/static/**/*           js, css, images
+  #   utils/locales/*.yaml      translations
+  #   utils/fonts/*             overlay fonts
+  #   model/migrations/**/*.sql schema migrations
+  # VERSION and the module files are watched individually. .env is included
+  # so editing the local port/session settings restarts the app.
+  include_ext = ["go", "html", "tmpl", "js", "css", "sql", "yaml", "ttf", "otf", "woff", "woff2", "ico", "png", "jpg", "jpeg", "gif", "svg", "webp"]
+  include_file = ["VERSION", ".env", "go.mod", "go.sum"]
 
-  # Don't rebuild the whole app because a test file changed, and don't
-  # let watcher/tests noise trigger constant restarts.
-  exclude_dir = ["tmp", "tests", "docs", ".git", "scripts"]
-  exclude_regex = ["_test\\.go"]
-
-  # Don't treat the SQLite db or uploaded images as source changes —
-  # both live/churn inside the repo tree during local dev.
-  exclude_file = ["data/isley.db"]
+  # Don't rebuild for test files, editor temp files, or non-source trees.
+  # data/, logs/, and uploads/ are runtime state (SQLite DB, WAL, logs,
+  # uploaded images, stream frames) and change while the app is running.
+  exclude_dir = ["tmp", "tests", "docs", ".git", ".github", ".vscode", ".idea", "scripts", "data", "logs", "uploads", "output", "node_modules", "audits", "planning"]
+  exclude_regex = ["_test\\.go", "(^|/)\\.#", "~$"]
   exclude_unchanged = true
 
   delay = 200 # ms — small debounce so a save-all in your editor doesn't trigger 5 rebuilds
