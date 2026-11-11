@@ -9,6 +9,7 @@
 /output/
 /planning/
 /uploads/
+/tmp/**
 
 /.env
 /CLAUDE.md
@@ -16,3 +17,5 @@
 /TODO.md
 /docs/SDLC.md
 /scripts/cowork-bootstrap.sh
+/mise.toml
+/tmp/*/**

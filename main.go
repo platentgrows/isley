@@ -45,6 +45,7 @@ func main() {
 	logger.InitLogger()
 
 	version := fmt.Sprintf("Isley %s", getVersion())
+	versionCustom := "platentgrows"
 	logger.Log.Info("Starting application version:", version)
 
 	// Expose the bare version to handlers for outbound User-Agent strings
@@ -60,7 +61,7 @@ func main() {
 	model.InitDB()
 	model.RunStartupMaintenance()
 	dbDriver := model.GetDriver()
-	version = fmt.Sprintf("%s-%s", version, dbDriver)
+	version = fmt.Sprintf("%s-%s-%s", version, dbDriver, versionCustom)
 
 	utils.Init("en")
 
