@@ -3124,7 +3124,6 @@ header .nav-link.active::after {
     .dash-zone-header { flex-wrap: wrap; }
     .dash-zone-meta { margin-left: 0; margin-top: 0.35rem; width: 100%; }
 }
-
 /* ---------------------------------------------------------------------------
    Smoke-report star ratings
    ---------------------------------------------------------------------------

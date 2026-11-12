@@ -110,9 +110,9 @@
                     <th class="st-th-breeder st-sortable" data-sort="breeder">{{ .lcl.breeder }} <i class="fa-solid fa-sort ms-1 text-muted"></i></th>
                     <th class="st-th-lineage">Lineage</th>
                     <th class="st-th-type">Type</th>
-                    <th class="st-th-feminized st-sortable" data-sort="feminized">{{ .lcl.title_feminized }} <i class="fa-solid fa-sort ms-1 text-muted"></i></th>
-                    <th class="st-th-ratio st-sortable" data-sort="indica">{{ .lcl.indica_sativa_ratio }} <i class="fa-solid fa-sort ms-1 text-muted"></i></th>
-                    <th class="st-th-seeds st-sortable" data-sort="seeds">{{ .lcl.seed_count }} <i class="fa-solid fa-sort ms-1 text-muted"></i></th>
+                    <th class="st-th-feminized st-sortable" data-sort="feminized">Fem/Reg <i class="fa-solid fa-sort ms-1 text-muted"></i></th>
+                    <th class="st-th-ratio st-sortable" data-sort="indica">Indica/Sativa <i class="fa-solid fa-sort ms-1 text-muted"></i></th>
+                    <th class="st-th-seeds st-sortable" data-sort="seeds">Seeds <i class="fa-solid fa-sort ms-1 text-muted"></i></th>
                 </tr>
             </thead>
             <tbody id="strainsTableBody">
@@ -147,20 +147,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const sortableTable = new IsleySortableTable(sortBy, {
         prefix: "st",
         headerToDropdown: {
-            name:      { asc: "name-asc", desc: "name-desc" },
-            breeder:   { asc: "breeder-asc", desc: "breeder-desc" },
-            indica:    { asc: "sativa-desc", desc: "indica-desc" },
-            seeds:     { asc: "seeds-asc", desc: "seeds-desc" },
-            feminized: { asc: "feminized-desc", desc: "feminized-asc" },
+            name:    { asc: "name-asc", desc: "name-desc" },
+            breeder: { asc: "breeder-asc", desc: "breeder-desc" },
+            indica:  { asc: "sativa-desc", desc: "indica-desc" },
+            seeds:   { asc: "seeds-asc", desc: "seeds-desc" },
+            feminized: { asc: "feminized-asc", desc: "feminized-desc" },
         },
-        dropdownToHeader: { 
-            name:         "name", 
-            breeder:      "breeder", 
-            indica:       "indica", 
-            sativa:       { key: "indica", invert: true }, 
-            seeds:        "seeds",
-            feminized:    { asc: "feminized", desc: "regular" }
-        },
+        dropdownToHeader: { name: "name", breeder: "breeder", indica: "indica", sativa: { key: "indica", invert: true }, seeds: "seeds", feminized: "feminized" },
         onChange: applyFilters,
     });
 
@@ -183,7 +176,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ----- Fetch strains -----
     async function fetchStrains(view) {
         cardsContainer.innerHTML = `<div class="text-center py-5" style="flex-basis:100%"><div class="spinner-border text-primary" role="status"></div></div>`;
-        tableBody.innerHTML = `<tr><td colspan="6" class="text-center py-4"><div class="spinner-border text-primary" role="status"></div></td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="7" class="text-center py-4"><div class="spinner-border text-primary" role="status"></div></td></tr>`;
         try {
             const res = await fetch(`/strains/${view}`);
             allStrains = await res.json() || [];
@@ -409,7 +402,6 @@ document.addEventListener("DOMContentLoaded", () => {
     filterFeminized.addEventListener("change", applyFilters);
 
     clearBtn.addEventListener("click", () => {
-
         clearFilters({
             searchInput,
             selects: [filterBreeder, filterType, filterFeminized],
