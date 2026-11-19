@@ -17,7 +17,7 @@ func TestLoadSettings_FeatureSwitches(t *testing.T) {
 	db := testutil.NewTestDB(t)
 	testutil.MustExec(t, db, "UPDATE settings SET value = '0' WHERE name = 'api_ingest_enabled'")
 	testutil.MustExec(t, db, "INSERT INTO settings (name, value) VALUES ('mcp_enabled', '1')")
-	testutil.MustExec(t, db, "UPDATE settings SET value = 'oz' WHERE name = 'weight_unit'")
+	testutil.MustExec(t, db, "INSERT INTO settings (name, value) VALUES ('weight_unit', 'oz')")
 
 	store := config.NewStore()
 	assert.Equal(t, 1, store.APIIngestEnabled())

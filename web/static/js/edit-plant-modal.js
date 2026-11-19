@@ -94,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
         })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error("{{ .lcl.failed_to_change_status }}");
+                    throw new Error(uiMessages.t("failed_to_change_status"));
                 }
                 return response.json();
             })
@@ -103,7 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             .catch(error => {
                 console.error("Error:", error);
-                uiMessages.showToast(uiMessages.t('failed_to_change_status') || '{{ .lcl.failed_to_change_status }}', 'danger');
+                uiMessages.showToast(uiMessages.t("failed_to_change_status"), 'danger');
             });
     });
 });

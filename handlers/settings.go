@@ -11,6 +11,7 @@ import (
 	"isley/logger"
 	"isley/model/types"
 	"isley/service"
+	"isley/theme"
 	"isley/utils"
 	"strconv"
 
@@ -86,6 +87,25 @@ func SaveSettings(c *gin.Context) {
 	store.SetTimezone(settings.Timezone)
 	LoadSettings(db, store)
 
+	apiOK(c, "api_settings_saved")
+}
+
+// SaveTheme sets the instance's default theme: the one every visitor gets
+// until they pick their own in the header. The id is checked for shape
+// only; a page falls back to the built-in theme when it names none it has.
+func SaveTheme(c *gin.Context) {
+	var body struct {
+		Theme string `json:"theme"`
+	}
+	if err := c.ShouldBindJSON(&body); err != nil || !theme.ValidID(body.Theme) {
+		apiBadRequest(c, "api_invalid_settings_payload")
+		return
+	}
+	if err := UpdateSetting(DBFromContext(c), ConfigStoreFromContext(c), "theme", body.Theme); err != nil {
+		logger.Log.WithField("func", "SaveTheme").WithError(err).Error("Failed to save theme")
+		apiInternalError(c, "api_failed_to_save_settings")
+		return
+	}
 	apiOK(c, "api_settings_saved")
 }
 
@@ -182,6 +202,8 @@ func GetSettings(db *sql.DB) types.SettingsData {
 			settingsData.MaxBackupSizeMB, _ = strconv.Atoi(value)
 		case "timezone":
 			settingsData.Timezone = value
+		case "theme":
+			// Read from the config store by the page templates.
 		case "weight_unit":
 			settingsData.WeightUnit = utils.NormalizeWeightUnit(value)
 		default:
@@ -274,6 +296,9 @@ func LoadSettings(db *sql.DB, store *config.Store) {
 	}
 	if v, err := GetSetting(db, "timezone"); err == nil && v != "" {
 		store.SetTimezone(v)
+	}
+	if v, err := GetSetting(db, "theme"); err == nil {
+		store.SetTheme(v)
 	}
 	if v, err := GetSetting(db, "weight_unit"); err == nil {
 		store.SetWeightUnit(utils.NormalizeWeightUnit(v))

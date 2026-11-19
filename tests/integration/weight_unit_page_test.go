@@ -13,7 +13,7 @@ import (
 )
 
 // TestPlantsPage_UsesConfiguredWeightUnit guards the starting display unit
-// for the plant index: the page's weightUnit constant must come from the
+// for the plant index: the page hands plants.js the unit from the
 // setting so the cards and table start in oz when that is configured.
 func TestPlantsPage_UsesConfiguredWeightUnit(t *testing.T) {
 	t.Parallel()
@@ -32,6 +32,5 @@ func TestPlantsPage_UsesConfiguredWeightUnit(t *testing.T) {
 
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
-	assert.Contains(t, string(body), `const weightUnit = "oz";`)
-	assert.Contains(t, string(body), `const weightToggleHint = "Click to switch between grams and ounces";`)
+	assert.Contains(t, string(body), `data-weight-unit="oz"`)
 }
